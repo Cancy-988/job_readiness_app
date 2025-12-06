@@ -22,6 +22,9 @@ BRANCH_CATEGORIES = {
     "OTHER": ["aptitude"] 
 }
 
+ADMIN_EMAIL = "admin@skillify.com"
+ADMIN_PASSWORD = "admin123"
+
 
 @app.route("/")
 def home():
@@ -58,33 +61,20 @@ def login():
 
     return render_template("login.html", message=message)
 
-@app.route("/admin-login", methods=["GET", "POST"])
-def admin_login_page():
-    message = ""
+@app.route("/admin_login", methods=["GET", "POST"])
+def admin_login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("data/users.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, email, password, role FROM users WHERE email=?", (email,))
-        user = cursor.fetchone()
-        conn.close()
+        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+            session["admin"] = True
+            return redirect("/admin_dashboard")
+        else:
+            return render_template("admin_login.html", error="❌ Invalid login")
 
-        if user is None or user[3] != "admin":
-            return render_template("admin_login.html", message="Admin not found")
+    return render_template("admin_login.html")
 
-        if user[2] != password:
-            return render_template("admin_login.html", message="Incorrect password")
-
-        # Set admin session
-        session["user_name"] = user[0]
-        session["user_email"] = email
-        session["role"] = "admin"
-
-        return redirect("/admin/dashboard")
-
-    return render_template("admin_login.html", message=message)
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -559,39 +549,36 @@ def analytics():
                            dates=dates,
                            history=history,
                            no_data=False)
-@app.route("/admin/login")
-def admin_login():
-    session["user_role"] = "admin"
-    return redirect("/admin/dashboard")
 
-@app.route("/admin/login-test")
-def admin_login_test():
-    session["user_role"] = "admin"
-    return redirect("/admin/dashboard")
-
-
-@app.route("/admin/dashboard")
+@app.route("/admin_dashboard")
 def admin_dashboard():
-    if "role" not in session or session["role"] != "admin":
-        return redirect("/admin-login")
+    if "admin" not in session:
+        return redirect("/admin_login")
 
-    stats = {
-        "total_students": 120,
-        "total_quizzes": 45,
-        "avg_score": 72,
-        "active_users": 38,
-        "branches": ["CSE", "IT", "ECE", "ME"],
-        "students_per_branch": [60, 25, 20, 15],
-        "avg_score_per_branch": [75, 70, 68, 65]
-    }
+    conn = sqlite3.connect("data/users.db")
+    cursor = conn.cursor()
 
-    return render_template("admin_dashboard.html", stats=stats)
+    cursor.execute("SELECT id, name, email FROM users")
+    users = cursor.fetchall()
+
+    cursor.execute("SELECT id, user_email, category, score, total, taken_on FROM quiz_results")
+    results = cursor.fetchall()
+
+    conn.close()
+
+    return render_template("admin_dashboard.html", users=users, results=results)
+
 
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
+
+@app.route("/admin_logout")
+def admin_logout():
+    session.pop("admin", None)
+    return redirect("/admin_login")
 
 if __name__ == "__main__":
     app.run(debug=True)
