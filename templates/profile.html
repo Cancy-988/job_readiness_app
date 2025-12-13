@@ -1,148 +1,821 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Your Profile</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skillify - Your Profile</title>
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 16px;
+        }
+
+        /* Dark Theme Variables */
+        .dark-theme {
+            --primary: #5d7df5;
+            --primary-dark: #4a67e3;
+            --secondary: #8a2be2;
+            --accent: #ff4d9f;
+            --light: #1a1a2e;
+            --dark: #f8f9fa;
+            --gray: #adb5bd;
+            --gray-light: #2d3047;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            margin: 0;
-            padding: 30px;
-            font-family: Poppins, sans-serif;
-            background-color: #f5f6fa;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .profile-container {
-            width: 60%;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .top-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .profile-pic {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #6a5af9;
-            margin-bottom: 10px;
-        }
-
-        .top-section h2 {
-            margin: 0;
-            font-size: 26px;
-            color: #333;
-        }
-
-        .section-box {
-            background: #fafafa;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(114, 9, 183, 0.05));
+            min-height: 100vh;
             padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 5px solid #6a5af9;
+            transition: var(--transition);
         }
 
-        .section-box h3 {
-            margin: 0 0 10px 0;
-            color: #6a5af9;
+        /* Header - Same as Dashboard */
+        .navbar {
+            background: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .dark-theme .navbar {
+            background: var(--gray-light);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: var(--gray-light);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 20px;
+            color: var(--dark);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary);
+            color: white;
+            transform: rotate(15deg);
+        }
+
+        /* Main Container */
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Sidebar Profile Card */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .dark-theme .profile-card {
+            background: var(--gray-light);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            overflow: hidden;
+            border: 5px solid transparent;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--success));
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+            border: 4px solid white;
+        }
+
+        .no-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 48px;
             font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .profile-email {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .dark-theme .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--dark);
+            border: 2px solid transparent;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent), #ff4d9f);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(247, 37, 133, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark-theme .section-card {
+            background: var(--gray-light);
+        }
+
+        .section-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
         }
 
         .info-item {
-            margin: 8px 0;
-            font-size: 17px;
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            transition: var(--transition);
         }
 
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
-            background: #6a5af9;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 8px;
+        .dark-theme .info-item {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .info-item:hover {
+            transform: translateX(5px);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
             font-weight: 600;
-            transition: 0.3s;
+            color: var(--dark);
+            line-height: 1.5;
         }
 
-        .back-link:hover {
-            background: #5847e0;
+        /* Skill Tags */
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
         }
 
-        /* 🌙 Dark Mode Support */
-        .dark-mode {
-            background-color: #1e1e1e !important;
-            color: white !important;
+        .skill-tag {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(114, 9, 183, 0.1));
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
         }
 
-        .dark-mode .profile-container {
-            background: #2a2a2a !important;
-            color: white !important;
-            box-shadow: none !important;
+        .skill-tag:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
         }
 
-        .dark-mode .section-box {
-            background: #333 !important;
-            border-left-color: #a898ff !important;
+        /* Confidence Meter */
+        .confidence-meter {
+            margin-top: 15px;
         }
 
-        .dark-mode .back-link {
-            background: #8e77ff !important;
+        .meter-bar {
+            height: 10px;
+            background: var(--gray-light);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+
+        .meter-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Badges */
+        .badges-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--light);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .dark-theme .badge {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .badge-icon {
+            font-size: 18px;
+        }
+
+        /* No Data State */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+                max-width: 800px;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .main-content {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .nav-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .section-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .badges-container {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
-
 <body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <a href="/dashboard" class="logo-container">
+            <div class="logo-icon">S</div>
+            <div class="logo-text">Skillify</div>
+        </a>
+        
+        <div class="nav-right">
+            <button class="theme-toggle" id="themeToggle">
+                🌙
+            </button>
+        </div>
+    </nav>
 
-<div class="profile-container">
+    <!-- Main Profile Container -->
+    <div class="profile-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    {% if user[2] %}
+                    <img src="/static/uploads/{{ user[2] }}" alt="{{ user[0] }}" class="profile-image">
+                    {% else %}
+                    <div class="no-image">{{ user[0][0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <h1 class="profile-name">{{ user[0] }}</h1>
+                <p class="profile-email">{{ user[1] }}</p>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            {% if details %}
+                                {{ details[4] }}/10
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            {% if details %}
+                                {{ details[1] }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Projects</div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Top Section -->
-    <div class="top-section">
-       {% if user[2] %}
-    <img class="profile-pic" src="/static/uploads/{{ user[2] }}">
-       {% else %}
-    <img class="profile-pic" >
-       {% endif %}
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/dashboard" class="action-btn btn-primary">
+                    <span>←</span>
+                    Back to Dashboard
+                </a>
+                <a href="/edit_profile" class="action-btn btn-secondary">
+                    <span>✏️</span>
+                    Edit Profile
+                </a>
+            </div>
+        </div>
 
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Personal Information Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">👤</div>
+                    <h2 class="section-title">Personal Information</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value">{{ user[0] }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value">{{ user[1] }}</div>
+                    </div>
+                    
+                    {% if details %}
+                    <div class="info-item">
+                        <div class="info-label">Student Branch</div>
+                        <div class="info-value">{{ details[0] }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Account Status</div>
+                        <div class="info-value">
+                            <span style="color: var(--success); font-weight: 600;">●</span>
+                            Active
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
 
-        <h2>{{ user[0] }}</h2>
-        <p style="opacity:0.7;">{{ user[1] }}</p>
+            <!-- Skills & Details Section -->
+            {% if details %}
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">🎯</div>
+                    <h2 class="section-title">Skills & Details</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Projects Completed</div>
+                        <div class="info-value">{{ details[1] }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Internships</div>
+                        <div class="info-value">{{ details[2] }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Self Confidence</div>
+                        <div class="info-value">{{ details[4] }}/10</div>
+                        <div class="confidence-meter">
+                            <div class="meter-bar">
+                                {% set confidence_percent = (details[4]|int / 10 * 100)|int %}
+                                <div class="meter-fill" style="width: {{ confidence_percent }}%;"></div>
+                            </div>
+                            <div class="meter-label">
+                                <span>Low</span>
+                                <span>High</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Skills -->
+                <div style="margin-top: 20px;">
+                    <div class="info-label" style="margin-bottom: 15px;">Technical Skills</div>
+                    <div class="skill-tags">
+                        {% for skill in details[3].split(',') %}
+                        <span class="skill-tag">{{ skill.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badges Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">🏆</div>
+                    <h2 class="section-title">Profile Badges</h2>
+                </div>
+                
+                <div class="badges-container">
+                    <div class="badge">
+                        <span class="badge-icon">📝</span>
+                        <span>Profile Complete</span>
+                    </div>
+                    
+                    {% if details[1]|int >= 3 %}
+                    <div class="badge">
+                        <span class="badge-icon">🚀</span>
+                        <span>Project Expert</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if details[2]|int >= 2 %}
+                    <div class="badge">
+                        <span class="badge-icon">💼</span>
+                        <span>Experienced</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if details[4]|int >= 8 %}
+                    <div class="badge">
+                        <span class="badge-icon">⭐</span>
+                        <span>High Confidence</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% else %}
+            <!-- No Data State -->
+            <div class="section-card">
+                <div class="no-data">
+                    <div class="no-data-icon">📋</div>
+                    <h3 style="margin-bottom: 10px; color: var(--dark);">No Student Details Added</h3>
+                    <p style="margin-bottom: 20px;">Complete your profile to unlock personalized features and get better insights.</p>
+                    <a href="/form" class="action-btn btn-primary" style="display: inline-flex;">
+                        <span>+</span>
+                        Add Student Details
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
 
-    <!-- Basic Info -->
-    <div class="section-box">
-        <h3>Basic Information</h3>
-        <div class="info-item"><strong>Name:</strong> {{ user[0] }}</div>
-        <div class="info-item"><strong>Email:</strong> {{ user[1] }}</div>
-    </div>
-
-    <!-- Student Details -->
-    {% if details %}
-    <div class="section-box">
-        <h3>Student Details</h3>
-        <div class="info-item"><strong>Branch:</strong> {{ details[0] }}</div>
-        <div class="info-item"><strong>Projects:</strong> {{ details[1] }}</div>
-        <div class="info-item"><strong>Internships:</strong> {{ details[2] }}</div>
-        <div class="info-item"><strong>Skills:</strong> {{ details[3] }}</div>
-        <div class="info-item"><strong>Confidence:</strong> {{ details[4] }}/10</div>
-    </div>
-    {% else %}
-    <p style="color:red;">No student details added yet.</p>
-    {% endif %}
-
-    <a href="/dashboard" class="back-link">⬅ Back to Dashboard</a>
-    <br><br>
-    <a href="/edit_profile" class="back-link" style="background:#ff6b6b;">✏️ Edit Profile</a>
-
-
-</div>
-
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme
+        const savedTheme = localStorage.getItem('skillify-theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-theme');
+            themeToggle.textContent = '☀️';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            
+            if (body.classList.contains('dark-theme')) {
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('skillify-theme', 'dark');
+            } else {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('skillify-theme', 'light');
+            }
+        });
+        
+        // Add animations to info items
+        document.addEventListener('DOMContentLoaded', () => {
+            const infoItems = document.querySelectorAll('.info-item');
+            infoItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+                item.style.opacity = '0';
+                item.style.animation = 'fadeIn 0.6s ease-out forwards';
+            });
+            
+            // Animate confidence meter
+            const meterFill = document.querySelector('.meter-fill');
+            if (meterFill) {
+                setTimeout(() => {
+                    meterFill.style.transition = 'width 1.5s ease';
+                }, 500);
+            }
+            
+            // Add hover effect to badges
+            const badges = document.querySelectorAll('.badge');
+            badges.forEach(badge => {
+                badge.addEventListener('mouseenter', () => {
+                    badge.style.transform = 'translateY(-3px)';
+                    badge.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+                });
+                
+                badge.addEventListener('mouseleave', () => {
+                    badge.style.transform = 'translateY(0)';
+                    badge.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

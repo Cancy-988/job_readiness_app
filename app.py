@@ -26,9 +26,16 @@ ADMIN_EMAIL = "admin@skillify.com"
 ADMIN_PASSWORD = "admin123"
 
 
+# ==================== HOME PAGE ====================
 @app.route("/")
 def home():
-    return render_template("login.html")
+    """Main landing page for Skillify"""
+    return render_template("home.html")
+
+@app.route("/home")
+def home_page():
+    """Alias for the home page"""
+    return render_template("home.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
