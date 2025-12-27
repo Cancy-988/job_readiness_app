@@ -138,33 +138,6 @@ Visualization
 
 Chart.js
 
-📁 Project Structure
-Skillify/
-│
-├── app.py                      # Main Flask application
-├── train_model.py              # ML model training
-├── job_ready_model.pkl         # Trained ML model
-│
-├── data/
-│   ├── users.db                # SQLite database
-│   └── questions.json          # Quiz questions
-│
-├── templates/
-│   ├── login.html
-│   ├── signup.html
-│   ├── dashboard.html
-│   ├── profile.html
-│   ├── quiz.html
-│   ├── results.html
-│   ├── analytics.html
-│   ├── learning_path.html
-│   └── admin_dashboard.html
-│
-├── static/
-│   └── uploads/                # Profile pictures
-│
-└── README.md
-
 ⚙️ How the System Works
 
 Student registers and logs in
