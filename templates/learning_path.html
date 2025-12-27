@@ -1,183 +1,1048 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Personalized Learning Path</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skillify - Personalized Learning Path</title>
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 16px;
+        }
+
+        /* Dark Theme Variables */
+        .dark-theme {
+            --primary: #5d7df5;
+            --primary-dark: #4a67e3;
+            --secondary: #8a2be2;
+            --accent: #ff4d9f;
+            --light: #1a1a2e;
+            --dark: #f8f9fa;
+            --gray: #adb5bd;
+            --gray-light: #2d3047;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: Poppins, sans-serif;
-            background: #f4f5fc;
-            padding: 30px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #4b4b4b;
-            margin-bottom: 20px;
-        }
-
-        .progress-box {
-            width: 90%;
-            margin: 20px auto;
-            background: white;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(114, 9, 183, 0.05));
+            min-height: 100vh;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        /* Header - Same as Dashboard */
+        .navbar {
+            background: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .dark-theme .navbar {
+            background: var(--gray-light);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: var(--gray-light);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 20px;
+            color: var(--dark);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary);
+            color: white;
+            transform: rotate(15deg);
+        }
+
+        /* Main Container */
+        .learning-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Progress Card */
+        .progress-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius);
+            padding: 40px;
+            color: white;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+
+        .progress-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .progress-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .progress-score {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            margin: 30px 0;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
 
         .progress-bar {
-            width: 100%;
-            background: #ddd;
             height: 20px;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             overflow: hidden;
         }
 
-        .fill {
+        .progress-fill {
             height: 100%;
-            background: #6a5af9;
-            width: {{ readiness }}%;
-        }
-
-        .card-container {
-            display: grid;
-            width: 90%;
-            margin: 20px auto;
-            gap: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        }
-
-        .card {
             background: white;
-            padding: 20px;
+            border-radius: 10px;
+            width: {{ readiness }}%;
+            transition: width 1.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Skills Cards Grid */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .skill-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark-theme .skill-card {
+            background: var(--gray-light);
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .weak-card {
+            border-top: 5px solid var(--accent);
+        }
+
+        .strong-card {
+            border-top: 5px solid var(--success);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
         }
 
-        .card h3 {
-            margin-top: 0;
-            color: #6a5af9;
+        .weak-card .card-icon {
+            background: linear-gradient(135deg, var(--accent), #ff4d9f);
         }
 
-        ul {
-            padding-left: 20px;
+        .strong-card .card-icon {
+            background: linear-gradient(135deg, var(--success), #3ab8dd);
         }
 
-        a {
-            color: #6a5af9;
-            text-decoration: none;
+        .card-title {
+            font-size: 1.4rem;
             font-weight: 600;
+            color: var(--dark);
+        }
+
+        .skill-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .skill-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: var(--light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .dark-theme .skill-item {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .skill-item:hover {
+            transform: translateX(5px);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .skill-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .skill-score {
+            margin-left: auto;
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .dark-theme .content-card {
+            background: var(--gray-light);
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .content-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .content-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .content-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Video Recommendations */
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .video-item {
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .dark-theme .video-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .video-item:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .video-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.5;
+        }
+
+        .video-link:hover {
+            color: var(--primary);
+        }
+
+        .video-platform {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff0000;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Steps List */
+        .steps-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-item {
+            position: relative;
+            padding: 20px 20px 20px 60px;
+            margin-bottom: 15px;
+            background: var(--light);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .dark-theme .step-item {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .step-item:hover {
+            transform: translateX(5px);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .step-item::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .step-desc {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Practice Websites */
+        .websites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .website-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .dark-theme .website-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .website-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+            box-shadow: var(--shadow);
+        }
+
+        .website-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .website-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .website-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .website-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Weekly Plan */
+        .weekly-plan {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .day-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+        }
+
+        .dark-theme .day-card {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .day-card:hover {
+            transform: translateX(5px);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .day-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .day-content h4 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .day-content p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .progress-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .skills-grid,
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .websites-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .websites-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .day-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
         }
     </style>
 </head>
-
 <body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <a href="/dashboard" class="logo-container">
+            <div class="logo-icon">S</div>
+            <div class="logo-text">Skillify</div>
+        </a>
+        
+        <div class="nav-right">
+            <button class="theme-toggle" id="themeToggle">
+                🌙
+            </button>
+        </div>
+    </nav>
 
-<h1>🎯 Your Personalized Learning Path</h1>
+    <!-- Main Container -->
+    <div class="learning-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Personalized Learning Path</h1>
+            <p class="page-subtitle">Your customized roadmap to skill mastery based on assessment results</p>
+        </div>
 
-<!-- Readiness -->
-<div class="progress-box">
-    <h3>Job Readiness Score: <strong>{{ readiness }}%</strong></h3>
+        <!-- Progress Card -->
+        <div class="progress-card">
+            <div class="progress-content">
+                <div class="progress-header">
+                    <div>
+                        <div class="progress-title">Job Readiness Progress</div>
+                        <div style="opacity: 0.9; margin-top: 5px;">Based on your skill assessment performance</div>
+                    </div>
+                    <div class="progress-score">{{ readiness }}%</div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-labels">
+                        <span>Beginner</span>
+                        <span>Intermediate</span>
+                        <span>Advanced</span>
+                        <span>Job Ready</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    <div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Current Level</div>
+                        <div style="font-size: 1.2rem; font-weight: 600;">
+                            {% if readiness >= 80 %}
+                            Advanced
+                            {% elif readiness >= 60 %}
+                            Intermediate
+                            {% else %}
+                            Beginner
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Target Level</div>
+                        <div style="font-size: 1.2rem; font-weight: 600;">Job Ready (80%+)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="progress-bar">
-        <div class="fill"></div>
+        {% if message %}
+        <!-- Empty State -->
+        <div style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;">📋</div>
+            <h2 style="color: var(--dark); margin-bottom: 10px;">No Assessment Data Yet</h2>
+            <p style="color: var(--gray); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                {{ message }}
+            </p>
+            <a href="/quiz_sections" class="action-btn btn-primary" style="display: inline-flex;">
+                <span>📝</span>
+                Start Your First Assessment
+            </a>
+        </div>
+        
+        {% else %}
+        <!-- Skills Analysis -->
+        <div class="skills-grid">
+            <!-- Weak Skills Card -->
+            <div class="skill-card weak-card">
+                <div class="card-header">
+                    <div class="card-icon">⚠️</div>
+                    <h2 class="card-title">Areas to Improve</h2>
+                </div>
+                
+                <div class="skill-list">
+                    {% for skill in weak %}
+                    <div class="skill-item">
+                        <div class="skill-name">{{ skill }}</div>
+                        <div class="skill-score">
+                            {% if score_map and score_map[skill] is defined %}
+                                {{ score_map[skill] }}/5
+                            {% else %}
+                                Needs Practice
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(247, 37, 133, 0.1); border-radius: 8px;">
+                    <div style="font-weight: 600; color: var(--accent); margin-bottom: 5px;">Recommendation:</div>
+                    <div style="font-size: 0.95rem; color: var(--gray);">
+                        Focus on fundamentals, practice daily, and follow targeted learning resources
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Skills Card -->
+            <div class="skill-card strong-card">
+                <div class="card-header">
+                    <div class="card-icon">🌟</div>
+                    <h2 class="card-title">Strong Skills</h2>
+                </div>
+                
+                <div class="skill-list">
+                    {% for skill in best %}
+                    <div class="skill-item">
+                        <div class="skill-name">{{ skill }}</div>
+                        <div class="skill-score">
+                            {% if score_map and score_map[skill] is defined %}
+                                {{ score_map[skill] }}/5
+                            {% else %}
+                                Strong
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(76, 201, 240, 0.1); border-radius: 8px;">
+                    <div style="font-weight: 600; color: var(--success); margin-bottom: 5px;">Recommendation:</div>
+                    <div style="font-size: 0.95rem; color: var(--gray);">
+                        Build upon your strengths with advanced challenges and practical projects
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Content Grid -->
+        <div class="content-grid">
+            <!-- Video Recommendations -->
+            <div class="content-card">
+                <div class="content-header">
+                    <div class="content-icon">🎬</div>
+                    <h2 class="content-title">Recommended Videos</h2>
+                </div>
+                
+                <div class="video-list">
+                    {% for skill in weak %}
+                    <div class="video-item">
+                        <a href="
+                            {% if skill == 'APTITUDE' %}
+                            https://www.youtube.com/results?search_query=talent+battle+aptitude
+                            {% elif skill == 'DSA' %}
+                            https://youtube.com/playlist?list=PLgUwDviBIf0qUlt5H_kiKYaNSqJ81PMMY
+                            {% elif skill == 'DBMS' %}
+                            https://www.youtube.com/results?search_query=gate+smashers+dbms
+                            {% elif skill == 'OS' %}
+                            https://www.youtube.com/results?search_query=operating+system+tutorial
+                            {% endif %}
+                        " target="_blank" class="video-link">
+                            <span class="video-platform">YouTube</span>
+                            {% if skill == 'APTITUDE' %}
+                            Aptitude Complete Course - Talent Battle
+                            {% elif skill == 'DSA' %}
+                            DSA Mastery - Take U Forward
+                            {% elif skill == 'DBMS' %}
+                            DBMS Complete Tutorial - Gate Smashers
+                            {% elif skill == 'OS' %}
+                            Operating System Full Course - Neso Academy
+                            {% endif %}
+                        </a>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if 'APTITUDE' not in weak and 'DSA' not in weak and 'DBMS' not in weak and 'OS' not in weak %}
+                    <div class="video-item">
+                        <a href="https://www.youtube.com/results?search_query=advanced+programming+concepts" target="_blank" class="video-link">
+                            <span class="video-platform">YouTube</span>
+                            Advanced Programming Concepts
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Improvement Steps -->
+            <div class="content-card">
+                <div class="content-header">
+                    <div class="content-icon">📘</div>
+                    <h2 class="content-title">Learning Action Plan</h2>
+                </div>
+                
+                <ol class="steps-list">
+                    {% for skill in weak %}
+                    <li class="step-item">
+                        <div class="step-title">Master {{ skill }} Fundamentals</div>
+                        <div class="step-desc">Focus on core concepts with daily practice and targeted exercises</div>
+                    </li>
+                    {% endfor %}
+                    
+                    <li class="step-item">
+                        <div class="step-title">Practice Advanced Problems</div>
+                        <div class="step-desc">Solve complex problems to strengthen understanding and application</div>
+                    </li>
+                    
+                    <li class="step-item">
+                        <div class="step-title">Weekly Assessments</div>
+                        <div class="step-desc">Track progress with regular quizzes and adjust learning strategy</div>
+                    </li>
+                    
+                    <li class="step-item">
+                        <div class="step-title">Project Application</div>
+                        <div class="step-desc">Apply skills in real projects to reinforce learning</div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Practice Websites -->
+        <div class="content-card">
+            <div class="content-header">
+                <div class="content-icon">🌐</div>
+                <h2 class="content-title">Practice Platforms</h2>
+            </div>
+            
+            <div class="websites-grid">
+                <div class="website-card">
+                    <div class="website-icon">💻</div>
+                    <div class="website-name">PrepInsta</div>
+                    <a href="https://www.prepinsta.com" target="_blank" class="website-link">Visit</a>
+                </div>
+                
+                <div class="website-card">
+                    <div class="website-icon">⚡</div>
+                    <div class="website-name">HackerRank</div>
+                    <a href="https://www.hackerrank.com" target="_blank" class="website-link">Visit</a>
+                </div>
+                
+                <div class="website-card">
+                    <div class="website-icon">🏆</div>
+                    <div class="website-name">LeetCode</div>
+                    <a href="https://leetcode.com" target="_blank" class="website-link">Visit</a>
+                </div>
+                
+                <div class="website-card">
+                    <div class="website-icon">📚</div>
+                    <div class="website-name">GeeksForGeeks</div>
+                    <a href="https://www.geeksforgeeks.org" target="_blank" class="website-link">Visit</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Study Plan -->
+        <div class="content-card">
+            <div class="content-header">
+                <div class="content-icon">📅</div>
+                <h2 class="content-title">7-Day Study Plan</h2>
+            </div>
+            
+            <div class="weekly-plan">
+                {% for skill in weak %}
+                <div class="day-card">
+                    <div class="day-number">{{ loop.index }}</div>
+                    <div class="day-content">
+                        <h4>Day {{ loop.index }}: {{ skill }} Basics</h4>
+                        <p>Learn fundamentals, practice 10+ problems, watch recommended videos</p>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="day-card">
+                    <div class="day-number">{{ weak|length + 1 }}</div>
+                    <div class="day-content">
+                        <h4>Day {{ weak|length + 1 }}: Mixed Practice</h4>
+                        <p>Solve mixed problems across all weak areas, review concepts</p>
+                    </div>
+                </div>
+                
+                <div class="day-card">
+                    <div class="day-number">{{ weak|length + 2 }}</div>
+                    <div class="day-content">
+                        <h4>Day {{ weak|length + 2 }}: Assessment & Review</h4>
+                        <p>Take practice tests, analyze results, adjust learning focus</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="/quiz_sections" class="action-btn btn-primary">
+                <span>📝</span>
+                Take Another Assessment
+            </a>
+            <a href="/results" class="action-btn btn-secondary">
+                <span>📊</span>
+                View Results
+            </a>
+            <a href="/dashboard" class="action-btn btn-secondary">
+                <span>←</span>
+                Back to Dashboard
+            </a>
+        </div>
     </div>
-</div>
 
-<div class="card-container">
-    
-    <!-- Weak Skills -->
-    <div class="card">
-        <h3>⚠ Weak Skills:</h3>
-        <ul>
-            {% for skill in weak %}
-                <h4>{{ skill }}</h4>
-            {% endfor %}
-        </ul>
-
-        <ul>
-            <li>Focus more on basics</li>
-            <li>Practice 5 problems daily</li>
-            <li>Follow recommended videos</li>
-        </ul>
-    </div>
-
-    <!-- Best Skills -->
-    <div class="card">
-        <h3>🌟 Best Skills:</h3>
-        <ul>
-
-            {% for skill in best %}
-                <h4>{{ skill }}</h4>
-            {% endfor %}
-        </ul>
-        <ul> <li>You are performing well in this skill</li>
-             <li>Try advanced level questions</li> 
-        </ul>
-    </div>
-
-    <!-- Steps To Improve -->
-    <div class="card">
-        <h3>📘 Steps to Improve</h3>
-
-        {% for skill in weak %}
-            <h4>{{ skill }}</h4>
-            <ul>
-                <li>Understand basic theory of {{ skill }}</li>
-                <li>Watch topic-wise videos</li>
-                <li>Practice quizzes daily</li>
-                <li>Track your improvement weekly</li>
-            </ul>
-        {% endfor %}
-    </div>
-
-    <!-- Video Recommendations -->
-    <div class="card">
-        <h3>▶ Recommended Videos</h3>
-
-        {% for skill in weak %}
-            <h4>{{ skill }}</h4>
-            <ul>
-                {% if skill == "APTITUDE" %}
-                    <li><a href="https://www.youtube.com/results?search_query=talent+battle+aptitude" target="_blank">Aptitude Full Course - Talent Battle </a></li>
-
-                {% elif skill == "DSA" %}
-                    <li><a href="https://youtube.com/playlist?list=PLgUwDviBIf0qUlt5H_kiKYaNSqJ81PMMY" target="_blank">DSA Full Course – Take U Forward</a></li>
-
-                {% elif skill == "DBMS" %}
-                    <li><a href="https://www.youtube.com/results?search_query=gate+smashers+dbms" target="_blank">DBMS Full Course – Gate Smashers</a></li>
-
-                {% elif skill == "OS" %}
-                    <li><a href="https://www.youtube.com/results?search_query=operating+system+tutorial" target="_blank">Operating System Tutorials – Neso Academy</a></li>
-                {% endif %}
-            </ul>
-        {% endfor %}
-    </div>
-
-    <!-- Practice Websites -->
-    <div class="card">
-        <h3>🌐 Practice Websites</h3>
-        <ul>
-            <li><a href="https://www.prepinsta.com" target="_blank">PrepInsta</a></li>
-            <li><a href="https://www.hackerrank.com" target="_blank">HackerRank</a></li>
-            <li><a href="https://leetcode.com" target="_blank">LeetCode</a></li>
-            <li><a href="https://www.geeksforgeeks.org" target="_blank">GeeksForGeeks</a></li>
-        </ul>
-    </div>
-
-    <!-- Weekly Study Plan -->
-    <div class="card">
-        <h3>📅 Weekly Study Plan</h3>
-        <ul>
-            {% for skill in weak %}
-                <li>Day {{ loop.index }} → Focus on basics of {{ skill }}</li>
-            {% endfor %}
-            <li>Day 6 → Revision</li>
-            <li>Day 7 → Test + Summary</li>
-        </ul>
-    </div>
-
-</div>
-
-</body>
-</html>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme
+        const savedTheme = localStorage.getItem('skillify-theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-theme');
+            themeToggle.textContent = '☀️';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark
