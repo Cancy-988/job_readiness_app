@@ -405,6 +405,12 @@
                 </div>
                 
                 <button type="submit" class="btn-login">Login</button>
+                <div class="admin-login" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                <a href="/admin_login" style="color:#6a5af9; font-weight:600;">
+                    👨‍💼 Login as Admin
+                </a>
+</div>
+
                 
                 <!-- Error message display -->
                 {% if message %}
@@ -428,5 +434,6 @@
             this.textContent = type === 'password' ? 'Show' : 'Hide';
         });
     </script>
+    
 </body>
 </html>

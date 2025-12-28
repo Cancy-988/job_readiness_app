@@ -100,6 +100,22 @@ body {
     font-size: 30px;
     margin-bottom: 10px;
 }
+.admin-login {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+.admin-login a {
+    color: #6a5af9;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.admin-login a:hover {
+    text-decoration: underline;
+}
 
 
 

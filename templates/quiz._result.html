@@ -1,0 +1,17 @@
+<h3>Quiz Results</h3>
+<table>
+<tr>
+  <th>User Email</th><th>Category</th><th>Score</th><th>Total</th><th>Date</th>
+</tr>
+{% for r in results %}
+<tr>
+  <td>{{ r[1] }}</td>
+  <td>{{ r[2] }}</td>
+  <td>{{ r[3] }}</td>
+  <td>{{ r[4] }}</td>
+  <td>{{ r[5] }}</td>
+</tr>
+{% endfor %}
+</table>
+cursor.execute("SELECT id, name, email FROM users")
+cursor.execute("SELECT id, user_email, category, score, total, taken_on FROM quiz_results")

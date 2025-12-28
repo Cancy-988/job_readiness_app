@@ -26,7 +26,7 @@ ADMIN_EMAIL = "admin@skillify.com"
 ADMIN_PASSWORD = "admin123"
 
 
-# ==================== HOME PAGE ====================
+
 @app.route("/")
 def home():
     """Main landing page for Skillify"""
@@ -60,8 +60,9 @@ def login():
         elif user[1] != password:
             message = "Incorrect password."
             return render_template("login.html", message=message)
+        
 
-        # Login success
+        session.clear()
         session["user_name"] = user[0]
         session["user_email"] = email
         return redirect("/dashboard")
@@ -75,10 +76,11 @@ def admin_login():
         password = request.form["password"]
 
         if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+            session.clear()
             session["admin"] = True
             return redirect("/admin_dashboard")
-        else:
-            return render_template("admin_login.html", error="❌ Invalid login")
+        
+        return render_template("admin_login.html", error="❌ Invalid login")
 
     return render_template("admin_login.html")
 
@@ -178,7 +180,6 @@ def quiz_category(category):
 
 
 
-# ------------------- PROFILE -------------------
 @app.route("/profile")
 def profile():
     if "user_email" not in session:
@@ -199,7 +200,7 @@ def profile():
 
     return render_template("profile.html", user=user, details=details)
 
-# ------------------- EDIT PROFILE -------------------
+
 @app.route("/edit_profile", methods=["GET"])
 def edit_profile():
     if "user_email" not in session:
@@ -277,7 +278,6 @@ def quiz_sections():
     else:
         branch = "OTHER"
 
-    # fetch categories for the branch
     categories = BRANCH_CATEGORIES.get(branch, ["aptitude"])
 
     return render_template(
@@ -434,16 +434,14 @@ def results():
     scores = [row[1] for row in records]
     totals = [row[2] for row in records]
 
-    # ✅ overall percentage (for UI)
+    
     if totals and sum(totals) > 0:
         overall_percent = round(sum(scores) / sum(totals) * 100)
     else:
         overall_percent = 0
 
-    # ✅ AI insight text (you already had this)
     insight_text = generate_insight(scores, categories)
 
-    # ✅ ML prediction from session (0/1 or None)
     job_pred = session.get("job_ready_prediction")  # 0 = not ready, 1 = ready
 
     return render_template(
@@ -469,7 +467,6 @@ def learning_path():
     conn = sqlite3.connect("data/users.db")
     cursor = conn.cursor()
 
-    # fetch last quiz scores
     cursor.execute("""
         SELECT category, score, total 
         FROM quiz_results 
@@ -484,20 +481,18 @@ def learning_path():
         return render_template("learning_path.html", 
                                message="Please attempt at least one quiz to get your learning path.")
 
-    # Build score dictionary
 
     categories = [r[0].upper() for r in records]
     scores = [r[1] for r in records]
     totals = [r[2] for r in records]
     score_map = {r[0].upper(): r[1] for r in records}
 
-    # Best & Weak Areas
+
     min_score = min(scores)
 
-    # List of all weak skills
+   
     weak_skills = [categories[i].upper() for i, s in enumerate(scores) if s == min_score]
 
-    # Find best skills
     max_score = max(scores)
     best_skills = [categories[i].upper() for i, s in enumerate(scores) if s == max_score]
 
@@ -532,13 +527,12 @@ def analytics():
     if not rows:
         return render_template("analytics.html", no_data=True)
 
-    # --- Prepare data ---
     categories = []
     scores = []
     totals = []
     dates = []
     
-    # For line chart (attempt history)
+
     history = defaultdict(list)
 
     for row in rows:
@@ -588,4 +582,4 @@ def admin_logout():
     return redirect("/admin_login")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
