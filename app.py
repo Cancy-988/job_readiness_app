@@ -22,8 +22,6 @@ BRANCH_CATEGORIES = {
     "OTHER": ["aptitude"] 
 }
 
-ADMIN_EMAIL = "admin@skillify.com"
-ADMIN_PASSWORD = "admin123"
 
 
 
@@ -45,6 +43,7 @@ def login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
+        role = request.form["role"] 
 
         conn = sqlite3.connect("data/users.db")
         cursor = conn.cursor()
@@ -69,20 +68,39 @@ def login():
 
     return render_template("login.html", message=message)
 
-@app.route("/admin_login", methods=["GET", "POST"])
+@app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
 
-        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+        conn = sqlite3.connect("data/users.db")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id FROM admin_users
+            WHERE email=? AND password=? AND is_active=1
+        """, (email, password))
+
+        admin = cursor.fetchone()
+        conn.close()
+
+        if admin:
             session.clear()
-            session["admin"] = True
-            return redirect("/admin_dashboard")
-        
-        return render_template("admin_login.html", error="❌ Invalid login")
+            session['admin_id'] = admin[0]
+            return redirect('/admin/dashboard')
+        else:
+            return "Invalid Admin Credentials"
 
-    return render_template("admin_login.html")
+    return render_template('admin_login.html')
+
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if 'admin_id' not in session:
+        return redirect('/admin/login')
+    return render_template('admin_dashboard.html')
+
 
 
 
@@ -551,24 +569,6 @@ def analytics():
                            history=history,
                            no_data=False)
 
-@app.route("/admin_dashboard")
-def admin_dashboard():
-    if "admin" not in session:
-        return redirect("/admin_login")
-
-    conn = sqlite3.connect("data/users.db")
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT id, name, email FROM users")
-    users = cursor.fetchall()
-
-    cursor.execute("SELECT id, user_email, category, score, total, taken_on FROM quiz_results")
-    results = cursor.fetchall()
-
-    conn.close()
-
-    return render_template("admin_dashboard.html", users=users, results=results)
-
 
 
 @app.route("/logout")
@@ -576,10 +576,10 @@ def logout():
     session.clear()
     return redirect("/login")
 
-@app.route("/admin_logout")
+@app.route('/admin/logout')
 def admin_logout():
-    session.pop("admin", None)
-    return redirect("/admin_login")
+    session.pop('admin_id', None)
+    return redirect('/admin/login')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
