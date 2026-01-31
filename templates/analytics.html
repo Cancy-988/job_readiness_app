@@ -1,138 +1,969 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Analytics Dashboard</title>
+    <title>Analytics Dashboard | Skillify</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            /* Light Theme (Default) */
+            --primary: #6a5af9;
+            --primary-dark: #5a4af0;
+            --primary-light: #8f7bff;
+            --secondary: #ff6b8b;
+            --secondary-dark: #e55a7c;
+            --accent: #00d4aa;
+            --accent-dark: #00c29c;
+            --dark: #2d2b55;
+            --light: #f8f9ff;
+            --gray: #a0a4c1;
+            --gray-light: #f5f5f8;
+            --shadow: 0 8px 25px rgba(106, 90, 249, 0.15);
+            --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+            
+            /* Background and surface colors */
+            --bg-color: var(--light);
+            --surface-color: #ffffff;
+            --text-color: var(--dark);
+            --text-secondary: var(--gray);
+            --border-color: #eaeaea;
+            --header-bg: #ffffff;
+            --card-bg: #ffffff;
+            --table-header-bg: var(--primary);
+            --table-hover: rgba(106, 90, 249, 0.05);
+            --footer-border: #eee;
+            --chart-grid: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --primary: #7c6cfc;
+            --primary-dark: #6a5af9;
+            --primary-light: #9b8aff;
+            --secondary: #ff7b9a;
+            --secondary-dark: #ff6b8b;
+            --accent: #00e6b8;
+            --accent-dark: #00d4aa;
+            --dark: #f0f0ff;
+            --light: #121826;
+            --gray: #8a8fb5;
+            --gray-light: #1a1f35;
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+            --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.2);
+            
+            /* Background and surface colors for dark theme */
+            --bg-color: #0d111f;
+            --surface-color: #161b2e;
+            --text-color: #f0f0ff;
+            --text-secondary: #a0a4c1;
+            --border-color: #2a2f45;
+            --header-bg: #161b2e;
+            --card-bg: #161b2e;
+            --table-header-bg: #2a2f45;
+            --table-hover: rgba(124, 108, 252, 0.1);
+            --footer-border: #2a2f45;
+            --chart-grid: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
         body {
-            font-family: Poppins, sans-serif;
-            background: #f3f4fb;
-            padding: 30px;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 0;
         }
 
-        h2 {
-            text-align: center;
+        /* Header */
+        .dashboard-header {
+            background: var(--header-bg);
+            padding: 25px 40px;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
             font-size: 28px;
-            color: #444;
-            margin-bottom: 25px;
+            color: var(--primary);
         }
 
-        .chart-box {
-            width: 80%;
-            margin: 25px auto;
-            background: white;
-            padding: 25px;
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-back {
+            background: var(--gray-light);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
             border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--gray-light);
+        }
+
+        .theme-icon {
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .theme-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* Dashboard Content */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 30px;
+        }
+
+        .dashboard-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .dashboard-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(106, 90, 249, 0.1), rgba(106, 90, 249, 0.05));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .stat-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Chart Grid */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1300px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+        }
+
+        .chart-container:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-title i {
+            color: var(--primary);
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        /* No Data Message */
+        .no-data-container {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .no-data-icon {
+            font-size: 64px;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .no-data-title {
+            font-size: 24px;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .no-data-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .btn-start-quiz {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-start-quiz:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(106, 90, 249, 0.25);
+        }
+
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 50px;
+            border-top: 1px solid var(--footer-border);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .dashboard-container {
+                padding: 0 20px;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .chart-legend {
+                align-self: flex-start;
+            }
         }
     </style>
 </head>
 
 <body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <a href="index.html" class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="logo-text">Skill<span>ify</span></div>
+        </a>
 
-<h2>📊 Analytics Dashboard</h2>
+        <div class="header-actions">
+            <button class="btn-back" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+            
+            <!-- Theme Toggle -->
+            <div class="theme-toggle" id="themeToggle">
+                <div class="theme-icon" id="themeIcon">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <div class="theme-text" id="themeText">Dark</div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar"></div>
+            <div>
+                {{ session['user_name'] }}
+            </div>
+            </div>
+        </div>
+    </header>
 
-{% if no_data %}
-    <h3 style="text-align:center; color:#888;">No quiz data available yet.</h3>
-{% else %}
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">📊 Analytics Dashboard</h1>
+        <p class="dashboard-subtitle">Deep dive into your performance metrics, trends, and skill development insights</p>
 
-<!-- Bar Chart -->
-<div class="chart-box">
-    <h3 style="text-align:center;">Category Performance</h3>
-    <canvas id="barChart"></canvas>
-</div>
+        {% if no_data %}
+            <!-- No Data State -->
+            <div class="no-data-container">
+                <div class="no-data-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h2 class="no-data-title">No quiz data available yet</h2>
+                <p class="no-data-subtitle">Complete your first assessment to unlock detailed analytics and insights</p>
+                <button class="btn-start-quiz">
+                    <i class="fas fa-play-circle"></i> Start Your First Quiz
+                </button>
+            </div>
+        {% else %}
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ ((scores|sum / totals|sum) * 100) | round(1) if totals|sum > 0 else 0 }}%</h3>
+                        <p>Average Score</p>
+                    </div>
+                </div>
 
-<!-- Horizontal Bar -->
-<div class="chart-box">
-    <h3 style="text-align:center;">Strength Ranking</h3>
-    <canvas id="horizontalChart"></canvas>
-</div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ categories|length }}</h3>
+                        <p>Skill Categories</p>
+                    </div>
+                </div>
 
-<!-- Line Chart -->
-<div class="chart-box">
-    <h3 style="text-align:center;">Performance Over Time</h3>
-    <canvas id="lineChart"></canvas>
-</div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ dates|length }}</h3>
+                        <p>Assessment Sessions</p>
+                    </div>
+                </div>
 
-<!-- Pie Chart -->
-<div class="chart-box">
-    <h3 style="text-align:center;">Skill Distribution</h3>
-    <canvas id="pieChart"></canvas>
-</div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>
+                            {% if scores %}
+                                {{ scores|max }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
+                        <p>Highest Score</p>
+                    </div>
+                </div>
+            </div>
 
-{% endif %}
+            <!-- Charts Grid -->
+            <div class="chart-grid">
+                <!-- Bar Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-bar"></i> Category Performance
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--primary);"></div>
+                                <span>Your Score</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--secondary);"></div>
+                                <span>Category Average</span>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="barChart"></canvas>
+                </div>
 
-<script>
-    const categories = {{ categories | tojson }};
-    const scores = {{ scores | tojson }};
-    const totals = {{ totals | tojson }};
-    const dates = {{ dates | tojson }};
-    const history = {{ history | tojson }};
+                <!-- Horizontal Bar Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-sort-amount-down"></i> Strength Ranking
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #4bc0c0;"></div>
+                                <span>Skill Strength</span>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="horizontalChart"></canvas>
+                </div>
 
-    // BAR CHART
-    new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: {
-            labels: categories,
-            datasets: [{
-                label: "Score",
-                data: scores,
-                backgroundColor: "#6a5af9"
-            }]
-        },
-        options: { scales: { y: { beginAtZero: true } } }
-    });
+                <!-- Line Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-line"></i> Performance Over Time
+                        </div>
+                        <div class="chart-legend" id="lineChartLegend"></div>
+                    </div>
+                    <canvas id="lineChart"></canvas>
+                </div>
 
-    // HORIZONTAL BAR CHART
-    new Chart(document.getElementById('horizontalChart'), {
-        type: 'bar',
-        data: {
-            labels: categories,
-            datasets: [{
-                label: "Score",
-                data: scores,
-                backgroundColor: "#4bc0c0"
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            scales: { x: { beginAtZero: true } }
+                <!-- Pie Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-pie"></i> Skill Distribution
+                        </div>
+                        <div class="chart-legend" id="pieChartLegend"></div>
+                    </div>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="dashboard-footer">
+        <p>Skillify Analytics © 2025 | AI-Powered Skill Assessment Platform</p>
+        <p style="margin-top: 5px; font-size: 13px;">Data-driven insights to accelerate your learning journey</p>
+    </div>
+
+    {% if not no_data %}
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const body = document.body;
+        
+        // Check for saved theme or user preference
+        const savedTheme = localStorage.getItem('skillify-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Set initial theme
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            setDarkTheme();
+        } else {
+            setLightTheme();
         }
-    });
-
-    // LINE CHART (PERFORMANCE OVER TIME)
-    const lineDatasets = [];
-    for (let cat in history) {
-        lineDatasets.push({
-            label: cat.toUpperCase(),
-            data: history[cat],
-            borderWidth: 2,
-            fill: false
+        
+        // Toggle theme on click
+        themeToggle.addEventListener('click', () => {
+            if (body.getAttribute('data-theme') === 'dark') {
+                setLightTheme();
+            } else {
+                setDarkTheme();
+            }
+            // Recreate charts with new theme colors
+            setTimeout(createCharts, 100);
         });
-    }
-
-    new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: lineDatasets
+        
+        function setDarkTheme() {
+            body.setAttribute('data-theme', 'dark');
+            themeIcon.innerHTML = '<i class="fas fa-sun"></i>';
+            themeText.textContent = 'Light';
+            localStorage.setItem('skillify-theme', 'dark');
         }
-    });
-
-    // PIE CHART
-    new Chart(document.getElementById('pieChart'), {
-        type: 'pie',
-        data: {
-            labels: categories,
-            datasets: [{
-                data: scores,
-                backgroundColor: ["#6a5af9", "#ff6384", "#36a2eb", "#ffcd56"]
-            }]
+        
+        function setLightTheme() {
+            body.removeAttribute('data-theme');
+            themeIcon.innerHTML = '<i class="fas fa-moon"></i>';
+            themeText.textContent = 'Dark';
+            localStorage.setItem('skillify-theme', 'light');
         }
-    });
+        
+        // Chart colors based on theme
+        function getChartColors() {
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            const primary = isDark ? '#7c6cfc' : '#6a5af9';
+            const secondary = isDark ? '#ff7b9a' : '#ff6b8b';
+            const accent = isDark ? '#4bc0c0' : '#4bc0c0';
+            const success = isDark ? '#00e6b8' : '#00d4aa';
+            const warning = isDark ? '#ffcd56' : '#ffcd56';
+            const info = isDark ? '#36a2eb' : '#36a2eb';
+            const purple = isDark ? '#9966ff' : '#9966ff';
+            const gray = isDark ? '#2a2f45' : '#c9cbcf';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+            const textColor = isDark ? '#f0f0ff' : '#2d2b55';
+            
+            return {
+                primary, secondary, accent, success, warning, info, purple, gray, gridColor, textColor
+            };
+        }
 
-</script>
+        // Chart instances
+        let barChartInstance, horizontalChartInstance, lineChartInstance, pieChartInstance;
 
+        // Initialize charts
+        function createCharts() {
+            const colors = getChartColors();
+            
+            
+            const categories = {{ categories | tojson }};
+            const scores = {{ scores | tojson }};
+            const totals = {{ totals | tojson }};
+            const dates = {{ dates | tojson }};
+            const history = {{ history | tojson }};
+
+           
+            const percentages = scores.map((score, index) => {
+                return Math.round((score / totals[index]) * 100);
+            });
+
+            // Sort data for horizontal chart (strongest to weakest)
+            const sortedIndices = [...percentages].map((_, i) => i)
+                .sort((a, b) => percentages[b] - percentages[a]);
+            const sortedCategories = sortedIndices.map(i => categories[i]);
+            const sortedPercentages = sortedIndices.map(i => percentages[i]);
+
+          
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            
+            if (barChartInstance) barChartInstance.destroy();
+            
+            barChartInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [
+                        {
+                            label: 'Your Score',
+                            data: scores,
+                            backgroundColor: colors.primary,
+                            borderRadius: 8,
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Category Average',
+                            data: totals.map(total => total * 0.75), // Simulated average
+                            backgroundColor: colors.secondary,
+                            borderRadius: 8,
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.raw;
+                                    if (context.datasetIndex === 0) {
+                                        const index = context.dataIndex;
+                                        label += ` marks (${percentages[index]}%)`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor
+                            },
+                            title: {
+                                display: true,
+                                text: 'Score (marks)',
+                                color: colors.textColor
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: colors.textColor
+                            }
+                        }
+                    }
+                }
+            });
+
+            const horizontalCtx = document.getElementById('horizontalChart').getContext('2d');
+            
+            if (horizontalChartInstance) horizontalChartInstance.destroy();
+            
+            horizontalChartInstance = new Chart(horizontalCtx, {
+                type: 'bar',
+                data: {
+                    labels: sortedCategories,
+                    datasets: [{
+                        label: 'Skill Strength (%)',
+                        data: sortedPercentages,
+                        backgroundColor: sortedPercentages.map(p => {
+                            if (p >= 80) return colors.success;
+                            if (p >= 60) return colors.accent;
+                            if (p >= 40) return colors.warning;
+                            return colors.secondary;
+                        }),
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Strength: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor
+                            },
+                            title: {
+                                display: true,
+                                text: 'Percentage (%)',
+                                color: colors.textColor
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: colors.textColor
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. LINE CHART - Performance Over Time
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            
+            // Prepare line chart datasets
+            const lineDatasets = [];
+            const colorPalette = [colors.primary, colors.secondary, colors.accent, 
+                                 colors.success, colors.warning, colors.info];
+            
+            let colorIndex = 0;
+            for (let cat in history) {
+                lineDatasets.push({
+                    label: cat.toUpperCase(),
+                    data: history[cat],
+                    borderColor: colorPalette[colorIndex % colorPalette.length],
+                    backgroundColor: colorPalette[colorIndex % colorPalette.length] + '20',
+                    borderWidth: 3,
+                    tension: 0.2,
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                });
+                colorIndex++;
+            }
+
+            // Create line chart
+            if (lineChartInstance) lineChartInstance.destroy();
+            
+            lineChartInstance = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: lineDatasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor
+                            },
+                            title: {
+                                display: true,
+                                text: 'Score (%)',
+                                color: colors.textColor
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Create legend for line chart
+            const lineLegend = document.getElementById('lineChartLegend');
+            lineLegend.innerHTML = '';
+            lineDatasets.forEach(dataset => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${dataset.borderColor};"></div>
+                    <span>${dataset.label}</span>
+                `;
+                lineLegend.appendChild(legendItem);
+            });
+
+            // 4. PIE CHART - Skill Distribution
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            
+            if (pieChartInstance) pieChartInstance.destroy();
+            
+            pieChartInstance = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: scores,
+                        backgroundColor: [
+                            colors.primary,
+                            colors.secondary,
+                            colors.accent,
+                            colors.success,
+                            colors.warning,
+                            colors.info,
+                            colors.purple
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${value}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            
+            const pieLegend = document.getElementById('pieChartLegend');
+            pieLegend.innerHTML = '';
+            categories.forEach((category, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${pieChartInstance.data.datasets[0].backgroundColor[index]};"></div>
+                    <span>${category}</span>
+                `;
+                pieLegend.appendChild(legendItem);
+            });
+        }
+
+      
+        createCharts();
+
+        // Start Quiz button functionality
+        document.querySelector('.btn-start-quiz')?.addEventListener('click', function() {
+            window.location.href = 'assessments.html';
+        });
+    </script>
+    {% endif %}
 </body>
 </html>

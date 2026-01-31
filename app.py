@@ -492,6 +492,7 @@ def learning_path():
 
 from collections import defaultdict
 
+
 @app.route("/analytics")
 def analytics():
     if "user_email" not in session:
@@ -501,36 +502,52 @@ def analytics():
     conn = sqlite3.connect("data/users.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT category, score, total, taken_on FROM quiz_results WHERE user_email=?", (email,))
+    cursor.execute("""
+        SELECT category, score, total, taken_on 
+        FROM quiz_results 
+        WHERE user_email=?
+    """, (email,))
+    
     rows = cursor.fetchall()
     conn.close()
 
     if not rows:
         return render_template("analytics.html", no_data=True)
 
+    category_scores = defaultdict(list)
+    category_totals = defaultdict(list)
+    history = defaultdict(list)
+    date_labels = set()
+
+    for cat, score, total, date in rows:
+        category_scores[cat].append(score)
+        category_totals[cat].append(total)
+        history[cat].append(round((score / total) * 100, 2))
+        date_labels.add(date)
+
+    
     categories = []
     scores = []
     totals = []
-    dates = []
-    
 
-    history = defaultdict(list)
-
-    for row in rows:
-        cat, score, total, date = row
+    for cat in category_scores:
         categories.append(cat)
-        scores.append(score)
-        totals.append(total)
-        dates.append(date)
-        history[cat].append(score)
+        avg_score = sum(category_scores[cat]) / len(category_scores[cat])
+        avg_total = sum(category_totals[cat]) / len(category_totals[cat])
+        scores.append(round(avg_score, 2))
+        totals.append(round(avg_total, 2))
 
-    return render_template("analytics.html",
-                           categories=categories,
-                           scores=scores,
-                           totals=totals,
-                           dates=dates,
-                           history=history,
-                           no_data=False)
+    dates = sorted(list(date_labels))
+
+    return render_template(
+        "analytics.html",
+        categories=categories,
+        scores=scores,
+        totals=totals,
+        dates=dates,
+        history=history,
+        no_data=False
+    )
 
 
 
