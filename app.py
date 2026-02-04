@@ -345,53 +345,49 @@ def generate_insight(scores, categories):
     if not scores:
         return "No quiz taken yet."
 
-    unique_scores = set(scores)
+    from collections import defaultdict
 
    
-    if len(unique_scores) == 1:
-        return "Your performance is balanced across all skills. Try attempting more quizzes to get detailed insights."
+    cat_scores = defaultdict(list)
 
-    max_score = max(scores)
-    min_score = min(scores)
-
-    best_cats = [categories[i].upper() for i, s in enumerate(scores) if s == max_score]
+    for cat, score in zip(categories, scores):
+        cat_scores[cat].append(score)
 
 
-    weak_cats = [categories[i].upper() for i, s in enumerate(scores) if s == min_score]
+    avg_scores = {}
+    for cat in cat_scores:
+        avg_scores[cat] = sum(cat_scores[cat]) / len(cat_scores[cat])
 
-    insight = ""
+    if len(avg_scores) == 1:
+        only_skill = list(avg_scores.keys())[0].upper()
+        return f"Your performance in **{only_skill}** is consistent. Try attempting more quizzes for deeper insights."
 
     
-    if len(best_cats) == 1:
-        insight += f"🌟 Your strongest skill is **{best_cats[0]}**.\n"
-    else:
-        insight += f"🌟 Your strongest skills are: **{', '.join(best_cats)}**.\n"
+    sorted_skills = sorted(avg_scores.items(), key=lambda x: x[1], reverse=True)
 
-   
-    if len(weak_cats) == 1:
-        insight += f"⚠️ You need to improve your **{weak_cats[0]}** skill.\n\n"
-    else:
-        insight += f"⚠️ You need to improve these skills: **{', '.join(weak_cats)}**.\n\n"
+    strong_skills = [sorted_skills[0][0].upper()]
+    weak_skills = [sorted_skills[-1][0].upper()]
 
- 
-    insight += "🎯 **Recommended Actions:**\n"
+    insight = (
+        f"🌟 Your strongest skill is  {strong_skills[0]}.\n\n"
+        f"⚠️ You need to improve your  {weak_skills[0]} skill.\n\n"
+        "🎯 **Recommended Actions:**\n"
+    )
 
-    if "APTITUDE" in weak_cats:
+    if "APTITUDE" in weak_skills:
         insight += "• Practice aptitude daily using IndiaBix or PrepInsta.\n"
 
-    if "DSA" in weak_cats:
-        insight += "• Solve 1–2 DSA problems daily on LeetCode or CodeStudio.\n"
+    if "DSA" in weak_skills:
+        insight += "• Solve 1–2 DSA problems daily on LeetCode.\n"
 
-    if "DBMS" in weak_cats:
-        insight += "• Revise SQL queries, Joins & ER models.\n"
+    if "DBMS" in weak_skills:
+        insight += "• Revise SQL queries, joins, and normalization.\n"
 
-    if "OS" in weak_cats:
-        insight += "• Focus on CPU Scheduling, Deadlocks & Memory Management.\n"
-
-    if len(weak_cats) == 0:
-        insight += "• Awesome! All your skills look great! Keep it up 🚀\n"
+    if "OS" in weak_skills:
+        insight += "• Focus on CPU scheduling, deadlocks, and memory management.\n"
 
     return insight
+
 
 @app.route("/results")
 def results():
@@ -417,7 +413,7 @@ def results():
     scores = [r[1] for r in records]
     totals = [r[2] for r in records]
 
-    # overall percentage
+    
     if totals and sum(totals) > 0:
         overall_percent = round((sum(scores) / sum(totals)) * 100)
     else:
@@ -489,9 +485,7 @@ def learning_path():
     )
 
 
-
 from collections import defaultdict
-
 
 @app.route("/analytics")
 def analytics():
@@ -514,6 +508,7 @@ def analytics():
     if not rows:
         return render_template("analytics.html", no_data=True)
 
+   
     category_scores = defaultdict(list)
     category_totals = defaultdict(list)
     history = defaultdict(list)
@@ -525,19 +520,37 @@ def analytics():
         history[cat].append(round((score / total) * 100, 2))
         date_labels.add(date)
 
-    
+   
     categories = []
     scores = []
     totals = []
+    category_percent = {}
 
     for cat in category_scores:
-        categories.append(cat)
         avg_score = sum(category_scores[cat]) / len(category_scores[cat])
         avg_total = sum(category_totals[cat]) / len(category_totals[cat])
+
+        categories.append(cat)
         scores.append(round(avg_score, 2))
         totals.append(round(avg_total, 2))
 
+        if avg_total > 0:
+            category_percent[cat] = round((avg_score / avg_total) * 100, 2)
+        else:
+            category_percent[cat] = 0
+
     dates = sorted(list(date_labels))
+
+  
+    sorted_skills = sorted(category_percent.items(), key=lambda x: x[1], reverse=True)
+
+    strong_skills = [s[0].upper() for s in sorted_skills[:2]]
+    weak_skills = [s[0].upper() for s in sorted_skills[-2:]]
+
+    insight = (
+        f"🌟 Your strongest skills are: **{', '.join(strong_skills)}**.\n\n"
+        f"⚠️ You need to improve these skills: **{', '.join(weak_skills)}**."
+    )
 
     return render_template(
         "analytics.html",
@@ -546,9 +559,9 @@ def analytics():
         totals=totals,
         dates=dates,
         history=history,
+        insight=insight,
         no_data=False
     )
-
 
 
 @app.route("/logout")
@@ -558,4 +571,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)

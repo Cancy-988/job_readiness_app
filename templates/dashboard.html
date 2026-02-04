@@ -523,9 +523,9 @@
             </div>
         </section>
 
-        <!-- Dashboard Cards Grid -->
+    
         <div class="dashboard-grid">
-            <!-- Fill Student Details Card -->
+       
             <div class="dashboard-card">
                 <div class="card-header">
                     <div class="card-icon">👤</div>
@@ -537,7 +537,7 @@
                 <a href="/form" class="card-action">Fill Details →</a>
             </div>
 
-            <!-- Take Skill Quiz Card -->
+         
             <div class="dashboard-card">
                 <div class="card-header">
                     <div class="card-icon">📝</div>
@@ -550,7 +550,7 @@
                 <a href="/quiz_sections" class="card-action">Start Assessment →</a>
             </div>
 
-            <!-- Analytics Dashboard Card -->
+        
             <div class="dashboard-card">
                 <div class="card-header">
                     <div class="card-icon">📊</div>
@@ -562,7 +562,7 @@
                 <a href="/analytics" class="card-action">View Analytics →</a>
             </div>
 
-            <!-- Learning Path Card -->
+     
             <div class="dashboard-card">
                 <div class="card-header">
                     <div class="card-icon">🎯</div>
@@ -574,7 +574,7 @@
                 <a href="/learning_path" class="card-action">View Path →</a>
             </div>
 
-            <!-- Results & Insights Card -->
+        
             <div class="dashboard-card">
                 <div class="card-header">
                     <div class="card-icon">🏆</div>
@@ -586,7 +586,7 @@
                 <a href="/results" class="card-action">View Results →</a>
             </div>
 
-            <!-- Progress Overview Card -->
+           
             <div class="dashboard-card progress-section">
                 <h3 class="progress-title">
                     <span>📈</span>
@@ -697,6 +697,14 @@
             const name = "{{ name }}";
             welcomeTitle.innerHTML = `${greeting}, ${name}! 👋 <span style="font-size: 2rem; opacity: 0.8;">🚀</span>`;
         });
+        {% if details %}
+<p><b>Branch:</b> {{ details[0] }}</p>
+<p><b>Projects:</b> {{ details[1] }}</p>
+<p><b>Internships:</b> {{ details[2] }}</p>
+<p><b>Confidence:</b> {{ details[3] }}/10</p>
+{% else %}
+<p>No profile data found</p>
+{% endif %}
     </script>
 </body>
 </html>

@@ -49,6 +49,10 @@
             transition: var(--transition);
         }
 
+        .dark-theme body {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(114, 9, 183, 0.1));
+        }
+
         /* Header - Same as Dashboard */
         .navbar {
             background: white;
@@ -232,7 +236,7 @@
             height: 100%;
             background: white;
             border-radius: 10px;
-            width: {{ readiness }}%;
+            width: 0%;
             transition: width 1.5s ease;
             position: relative;
             overflow: hidden;
@@ -662,6 +666,18 @@
             color: white;
         }
 
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .navbar {
@@ -787,8 +803,8 @@
 
         {% if message %}
         <!-- Empty State -->
-        <div style="text-align: center; padding: 60px 20px;">
-            <div style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;">📋</div>
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
             <h2 style="color: var(--dark); margin-bottom: 10px;">No Assessment Data Yet</h2>
             <p style="color: var(--gray); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
                 {{ message }}
@@ -1034,15 +1050,4 @@
 
     <script>
         // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
-        
-        // Check for saved theme
-        const savedTheme = localStorage.getItem('skillify-theme');
-        if (savedTheme === 'dark') {
-            body.classList.add('dark-theme');
-            themeToggle.textContent = '☀️';
-        }
-        
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark
+        const themeToggle = document.getElementById('
