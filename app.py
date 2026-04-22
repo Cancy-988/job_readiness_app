@@ -4,21 +4,79 @@ import os
 import json
 import pickle
 import random
+from werkzeug.utils import secure_filename
+
+try:
+    import psycopg2
+except ImportError:
+    psycopg2 = None
+
+try:
+    import cloudinary
+    import cloudinary.uploader
+except ImportError:
+    cloudinary = None
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 
 
 app = Flask(__name__)
-app.secret_key = "my_secret_key_12345"
+app.secret_key = os.getenv("SECRET_KEY", "dev_secret_key_change_me")
 app.config["UPLOAD_FOLDER"] = "static/uploads"
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+USE_POSTGRES = bool(DATABASE_URL)
+
+CLOUDINARY_ENABLED = all([
+    os.getenv("CLOUDINARY_CLOUD_NAME"),
+    os.getenv("CLOUDINARY_API_KEY"),
+    os.getenv("CLOUDINARY_API_SECRET"),
+]) and cloudinary is not None
+
+if CLOUDINARY_ENABLED:
+    cloudinary.config(
+        cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+        api_key=os.getenv("CLOUDINARY_API_KEY"),
+        api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+        secure=True,
+    )
 
 model = pickle.load(open("job_ready_model.pkl", "rb"))
 
 def get_db_connection(db_path="data/users.db"):
-    """Get database connection with timeout and WAL mode to prevent locking issues"""
+    """Get database connection for Postgres in production and SQLite locally."""
+    if USE_POSTGRES:
+        if psycopg2 is None:
+            raise RuntimeError("psycopg2-binary is required when DATABASE_URL is set.")
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+
     conn = sqlite3.connect(db_path, timeout=30)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA busy_timeout=30000")
     return conn
+
+
+def db_execute(cursor, query, params=()):
+    if USE_POSTGRES:
+        query = query.replace("?", "%s")
+    cursor.execute(query, params)
+
+
+def build_profile_pic_url(profile_pic_value):
+    if not profile_pic_value:
+        return None
+
+    if profile_pic_value.startswith("http://") or profile_pic_value.startswith("https://"):
+        return profile_pic_value
+
+    return url_for("static", filename=f"uploads/{profile_pic_value}")
 
 def load_questions():
     with open("data/questions.json", "r") as file:
@@ -55,7 +113,7 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT name, password FROM users WHERE email=?", (email,))
+        db_execute(cursor, "SELECT name, password FROM users WHERE email=?", (email,))
         user = cursor.fetchone()
         conn.close()
 
@@ -89,7 +147,7 @@ def signup():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM users WHERE email=?", (email,))
+        db_execute(cursor, "SELECT * FROM users WHERE email=?", (email,))
         existing = cursor.fetchone()
 
         if existing:
@@ -97,8 +155,8 @@ def signup():
             message = "Email already exists. Please use another email or login."
             return render_template("signup.html", message=message)
 
-        cursor.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-                       (name, email, password))
+        db_execute(cursor, "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+               (name, email, password))
 
         conn.commit()
         conn.close()
@@ -132,8 +190,8 @@ def student():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("INSERT INTO student_details (user_email, branch, projects, internships, skills, confidence) VALUES (?, ?, ?, ?, ?, ?)",
-                       (email, branch, projects, internships, skills, confidence))
+        db_execute(cursor, "INSERT INTO student_details (user_email, branch, projects, internships, skills, confidence) VALUES (?, ?, ?, ?, ?, ?)",
+               (email, branch, projects, internships, skills, confidence))
 
         conn.commit()
         conn.close()
@@ -163,7 +221,7 @@ def quiz_category(category):
         session["quiz_answers"] = answers
         session["quiz_category"] = category
 
-        return redirect("/result")
+        return redirect("/results")
 
     # Randomly select 5 questions from the pool for this quiz attempt
     question_pool = all_questions[category]
@@ -188,16 +246,17 @@ def profile():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT name, email, profile_pic FROM users WHERE email=?", (email,))
+        db_execute(cursor, "SELECT name, email, profile_pic FROM users WHERE email=?", (email,))
         user = cursor.fetchone()
 
-        cursor.execute("SELECT branch, projects, internships, skills, confidence FROM student_details WHERE user_email=?", (email,))
+        db_execute(cursor, "SELECT branch, projects, internships, skills, confidence FROM student_details WHERE user_email=?", (email,))
         details = cursor.fetchone()
     finally:
         if conn:
             conn.close()
 
-    return render_template("profile.html", user=user, details=details)
+    profile_pic_url = build_profile_pic_url(user[2]) if user else None
+    return render_template("profile.html", user=user, details=details, profile_pic_url=profile_pic_url)
 
 
 @app.route("/edit_profile", methods=["GET"])
@@ -211,16 +270,17 @@ def edit_profile():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT name, email, profile_pic FROM users WHERE email=?", (email,))
+        db_execute(cursor, "SELECT name, email, profile_pic FROM users WHERE email=?", (email,))
         user = cursor.fetchone()
 
-        cursor.execute("SELECT branch, projects, internships, skills, confidence FROM student_details WHERE user_email=?", (email,))
+        db_execute(cursor, "SELECT branch, projects, internships, skills, confidence FROM student_details WHERE user_email=?", (email,))
         details = cursor.fetchone()
     finally:
         if conn:
             conn.close()
 
-    return render_template("edit_profile.html", user=user, details=details)
+    profile_pic_url = build_profile_pic_url(user[2]) if user else None
+    return render_template("edit_profile.html", user=user, details=details, profile_pic_url=profile_pic_url)
 
 @app.route("/update_profile", methods=["POST"])
 def update_profile():
@@ -236,25 +296,37 @@ def update_profile():
     confidence = request.form["confidence"]
 
     file = request.files.get("profile_pic")
-    filename = None
+    profile_pic_value = None
 
     if file and file.filename:
-        ext = file.filename.rsplit(".", 1)[-1]
-        filename = email.replace("@", "_") + "." + ext
-        save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        file.save(save_path)
+        if CLOUDINARY_ENABLED:
+            upload_result = cloudinary.uploader.upload(
+                file,
+                folder="skillify/profile_pics",
+                public_id=email.replace("@", "_").replace(".", "_"),
+                overwrite=True,
+                resource_type="image",
+            )
+            profile_pic_value = upload_result.get("secure_url")
+        else:
+            ext = file.filename.rsplit(".", 1)[-1]
+            safe_email = secure_filename(email.replace("@", "_"))
+            filename = f"{safe_email}.{ext}"
+            save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(save_path)
+            profile_pic_value = filename
 
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        if filename:
-            cursor.execute("UPDATE users SET name=?, profile_pic=? WHERE email=?", (name, filename, email))
+        if profile_pic_value:
+            db_execute(cursor, "UPDATE users SET name=?, profile_pic=? WHERE email=?", (name, profile_pic_value, email))
         else:
-            cursor.execute("UPDATE users SET name=? WHERE email=?", (name, email))
+            db_execute(cursor, "UPDATE users SET name=? WHERE email=?", (name, email))
 
-        cursor.execute("UPDATE student_details SET branch=?, skills=?, projects=?, internships=?, confidence=? WHERE user_email=?", (branch, skills, projects, internships, confidence, email))
+        db_execute(cursor, "UPDATE student_details SET branch=?, skills=?, projects=?, internships=?, confidence=? WHERE user_email=?", (branch, skills, projects, internships, confidence, email))
 
         conn.commit()
     finally:
@@ -275,8 +347,8 @@ def quiz_sections():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT branch FROM student_details WHERE user_email=? ORDER BY rowid DESC LIMIT 1",
+    db_execute(cursor,
+        "SELECT branch FROM student_details WHERE user_email=? ORDER BY id DESC LIMIT 1",
         (email,)
     )
     row = cursor.fetchone()
@@ -322,7 +394,7 @@ def submit_quiz(category):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    db_execute(cursor, """
         INSERT INTO quiz_results (user_email, category, score, total, taken_on)
         VALUES (?, ?, ?, ?, ?)
     """, (
@@ -341,7 +413,7 @@ def submit_quiz(category):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    db_execute(cursor, """
         SELECT category, score FROM quiz_results 
         WHERE user_email=?
     """, (session["user_email"],))
@@ -432,7 +504,7 @@ def results():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    db_execute(cursor, """
         SELECT category, score, total, taken_on 
         FROM quiz_results 
         WHERE user_email=? 
@@ -475,7 +547,7 @@ def learning_path():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    db_execute(cursor, """
         SELECT category, score, total
         FROM quiz_results
         WHERE user_email=?
@@ -542,7 +614,7 @@ def analytics():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    db_execute(cursor, """
         SELECT category, score, total, taken_on 
         FROM quiz_results 
         WHERE user_email=?

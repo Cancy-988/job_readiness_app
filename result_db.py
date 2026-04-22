@@ -6,14 +6,11 @@ cursor = conn.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS quiz_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT,
-    coding INTEGER,
-    aptitude INTEGER,
-    problem_solving INTEGER,
-    communication INTEGER,
-    confidence INTEGER,
-    total_score INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_email TEXT NOT NULL,
+    category TEXT NOT NULL,
+    score INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    taken_on TEXT NOT NULL
 )
 """)
 

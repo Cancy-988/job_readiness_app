@@ -699,9 +699,9 @@
       <!-- Current Profile Preview -->
       <div class="current-profile">
         <div class="profile-preview">
-          {% if user[2] %}
+          {% if profile_pic_url %}
           <img
-            src="/static/uploads/{{ user[2] }}"
+            src="{{ profile_pic_url }}"
             alt="{{ user[0] }}"
             class="current-avatar"
           />

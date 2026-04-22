@@ -694,9 +694,9 @@
         <!-- Profile Card -->
         <div class="profile-card">
           <div class="profile-avatar">
-            {% if user[2] %}
+            {% if profile_pic_url %}
             <img
-              src="/static/uploads/{{ user[2] }}"
+              src="{{ profile_pic_url }}"
               alt="{{ user[0] }}"
               class="profile-image"
             />
