@@ -1,182 +1,203 @@
-🎓 Skillify – Student Skill Analyzer & Career Readiness Platform
+# Skillify
 
-Skillify is a data-driven student skill assessment and analytics platform designed to help students evaluate their technical and aptitude skills, monitor progress, receive personalized learning guidance, and predict career readiness using Machine Learning.
+Skillify is a student skill analyzer and career readiness platform built with Flask, Jinja templates, SQLite/PostgreSQL support, and a Logistic Regression machine learning model. It helps students assess technical skills, track performance, generate learning guidance, and predict whether they are job-ready.
 
-📌 Problem Statement
+## Live Demo
 
-Many students are unsure about:
+Production link: [https://skillify-yjbs.onrender.com/](https://skillify-yjbs.onrender.com/)
 
-Their actual skill level
+## Project Overview
 
-Which areas they need to improve
+This application combines quiz-based evaluation, student profile management, analytics dashboards, and ML-based readiness prediction in a single Flask web app. The backend renders templates directly, stores user and quiz data in a database, and uses a saved model file to predict job readiness from quiz scores.
 
-Whether they are job-ready or not
+## Key Features
 
-What learning path they should follow
+- Secure student signup and login
+- Student profile with branch, projects, internships, skills, and confidence level
+- Branch-based quizzes for aptitude, DSA, DBMS, and OS
+- Category-wise quiz result summary
+- Analytics dashboard with score history and performance insights
+- Personalized learning path based on weak areas
+- Job readiness prediction using a trained machine learning model
+- Optional PostgreSQL support for production deployments
+- Optional Cloudinary support for profile image uploads
 
-Traditional systems only provide marks, not insights.
+## Architecture
 
-Skillify solves this problem by:
+Skillify uses a simple server-rendered architecture:
 
-Analyzing student performance
+1. The browser opens the Flask app and requests a page.
+2. Flask routes in [app.py](app.py) validate the session and load data.
+3. Jinja templates in [templates/](templates) render the UI.
+4. Quiz results, profile details, and user records are stored in the database.
+5. The saved model in [job_ready_model.pkl](job_ready_model.pkl) predicts job readiness.
+6. Static assets in [static/](static) handle styling, scripts, images, and uploads.
 
-Visualizing progress through dashboards
+### Main application flow
 
-Providing personalized learning paths
+- User signs up or logs in
+- Student fills profile information
+- Quiz sections are unlocked based on branch
+- Quiz answers are submitted and stored
+- Analytics page shows progress and insights
+- Machine learning model predicts readiness
+- Learning path suggests what to improve next
 
-Predicting job readiness using ML
+### Backend design
 
-🚀 Key Features
-👤 Student Module
+- Flask handles routing, session management, and page rendering
+- SQLite is used locally
+- PostgreSQL is supported when `DATABASE_URL` is present
+- Cloudinary is used when profile upload credentials are configured
+- Gunicorn runs the app in production through [Procfile](Procfile)
 
-Secure login and signup system
+## Technology Stack
 
-Student profile with branch, skills, internships, projects, and confidence level
+### Frontend
 
-Branch-based quiz system (Aptitude, DSA, DBMS, OS)
+- HTML
+- CSS
+- JavaScript
+- Jinja2 templates
 
-Quiz result summary with category-wise analysis
+### Backend
 
-📊 Analytics dashboard to track performance and progress
+- Python
+- Flask
+- Gunicorn
 
-🧭 Personalized learning path based on weak skills
+### Database
 
-🤖 Job readiness prediction using Machine Learning
+- SQLite for local development
+- PostgreSQL for production support
 
+### Machine Learning
 
-📊 Analytics & Visualization
+- Pandas
+- NumPy
+- Scikit-learn
+- Pickle
 
-Skillify uses interactive charts to make data easy to understand:
+### Storage and Media
 
-📈 Line charts for performance trends over time
+- Cloudinary for profile images
 
-📊 Bar charts for category-wise and branch-wise scores
+## Repository Structure
 
-📌 Overall readiness percentage
+- [app.py](app.py) - Main Flask application
+- [init_db.py](init_db.py) - Database initialization script
+- [train_model.py](train_model.py) - Model training script
+- [job_ready_model.pkl](job_ready_model.pkl) - Trained ML model
+- [data/](data) - Questions and dataset files
+- [templates/](templates) - HTML templates
+- [static/](static) - CSS, JavaScript, images, and uploads
+- [requirements.txt](requirements.txt) - Python dependencies
+- [Procfile](Procfile) - Production start command
 
-📉 Skill gap identification
+## Database Tables
 
-These visualizations help students and admins interpret data clearly and take informed actions.
+The app manages these core tables:
 
-🤖 Machine Learning Integration
+- `users` - student account details and profile data
+- `student_details` - branch, projects, internships, skills, and confidence
+- `quiz_results` - quiz score history
+- `admin_users` - admin accounts
 
-A Logistic Regression model is trained using synthetic student performance data
+## Machine Learning Pipeline
 
-Input features include:
+The readiness model is trained with synthetic student performance data using Logistic Regression.
 
-Aptitude score
+Input features:
 
-DSA score
-
-DBMS score
-
-OS score
+- Aptitude score
+- DSA score
+- DBMS score
+- OS score
 
 Output:
 
-Job Ready (Yes / No)
+- Job ready: Yes / No
 
-The trained model is saved using pickle and integrated into the Flask application to provide real-time predictions after quiz completion.
+The trained estimator is saved as [job_ready_model.pkl](job_ready_model.pkl) and loaded by the Flask app at runtime.
 
-🧠 Personalized Learning Path
+## Local Development Setup
 
-Based on quiz performance:
+1. Clone the repository.
+2. Create a virtual environment.
+3. Install dependencies.
+4. Initialize the database.
+5. Run the Flask app.
 
-Weak skill areas are identified
+### Example commands
 
-Best-performing skills are highlighted
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python init_db.py
+python app.py
+```
 
-Students receive targeted improvement suggestions
+## Environment Variables
 
-Helps students follow a structured and focused learning roadmap
+For production, configure these variables:
 
-This makes the platform action-oriented, not just analytical.
+- `SECRET_KEY` - Flask session secret
+- `DATABASE_URL` - PostgreSQL connection string
+- `CLOUDINARY_CLOUD_NAME` - Cloudinary account name
+- `CLOUDINARY_API_KEY` - Cloudinary API key
+- `CLOUDINARY_API_SECRET` - Cloudinary API secret
 
-🧰 Technology Stack
-Frontend
+If `DATABASE_URL` is not set, the app falls back to local SQLite.
 
-HTML
+## Deployment Notes
 
-CSS
+This project is deployed as a Flask web service on Render.
 
-JavaScript
+Production start command:
 
-Backend
+```bash
+gunicorn app:app
+```
 
-Python
+Recommended Render settings:
 
-Flask
+- Service type: Web Service
+- Environment: Python 3
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn app:app`
 
-Database
+Important note for the free Render tier:
 
-SQLite
+- Free services sleep after inactivity
+- The first request after idle may take about a minute to wake up
+- Render free filesystem storage is ephemeral, so local uploads and local SQLite data should not be treated as permanent production storage
 
-Machine Learning
+## Features in Production
 
-Pandas
+- Student authentication
+- Profile management
+- Quiz flow
+- Results storage
+- Analytics dashboard
+- Learning path generation
+- ML-based readiness prediction
 
-NumPy
+## Future Improvements
 
-Scikit-learn
+- Resume parsing with NLP
+- Internship and job recommendations
+- More advanced ML models such as Random Forest or XGBoost
+- Better dashboard visualizations
+- Stronger mobile responsiveness
+- Gamification features like badges and levels
 
-Pickle
-
-Visualization
-
-Chart.js
-
-⚙️ How the System Works
-
-Student registers and logs in
-
-Student fills profile details
-
-Branch-wise quizzes are unlocked
-
-Quiz results are stored in database
-
-Analytics dashboard visualizes performance
-
-ML model predicts job readiness
-
-Learning path is generated based on weak skills
-
-
-
-🎯 Outcome
-
-Enabled students to understand their strengths and weaknesses clearly
-
-Improved career awareness through analytics and ML predictions
-
-Provided structured learning guidance for skill improvement
-
-🔮 Future Enhancements
-
-Resume analysis using NLP
-
-Internship and job recommendation system
-
-Advanced ML models (Random Forest, XGBoost)
-
-Cloud deployment (AWS / Render)
-
-Mobile-responsive UI
-
-Gamification (badges, levels, challenges)
-
-Integration with online learning platforms
-
-👨‍💻 Author
+## Author
 
 Cancy Khandelwal
+
 B.Tech CSE (Data Science)
 
+## Acknowledgement
 
-📚 Acknowledgement
-
-This project was developed as part of the B.Tech Final Year Curriculum to demonstrate practical implementation of Data Science, Machine Learning, Analytics, and Full-Stack Development concepts.
-
-⭐ Conclusion
-
-Skillify is a practical, analytics-driven, and scalable platform that bridges the gap between student performance data and career readiness, making it useful for students.
+This project was developed as part of a B.Tech final year curriculum to demonstrate full-stack development, analytics, and machine learning integration in a student career readiness platform.
